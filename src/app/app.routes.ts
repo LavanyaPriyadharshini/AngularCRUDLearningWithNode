@@ -1,3 +1,13 @@
+import { Component } from '@angular/core';
 import { Routes } from '@angular/router';
+import { UserRegistrationComponent } from './components/user-registration/user-registration.component';
 
-export const routes: Routes = [];
+export const routes: Routes = [
+
+ {
+    path:"",
+    component:UserRegistrationComponent
+ }
+
+
+];
