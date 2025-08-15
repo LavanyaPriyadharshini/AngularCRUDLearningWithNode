@@ -4,14 +4,15 @@
 <form [formGroup]="RegistrationForm">
   <div class="maincontainer">
 
-    <input type="text" name="name" placeholder="enter your name">
-     <input type="text" name="email" placeholder="enter your email">
-    <input type="text" name="age" placeholder="enter your age">
-       <input type="text" name="address" placeholder="enter your address">
-        <input type="text" name="contactno" placeholder="enter your contactno">
-         <input type="text" name="password" placeholder="enter your password">
+    <input type="text" name="name" formControlName="name" placeholder="enter your name"  #nameRef   (focus)="onFocus()" (blur)="onBlur()">
+     <input type="text" name="email" placeholder="enter your email" formControlName="email">
+    <input type="text" name="age" placeholder="enter your age" formControlName="age">
+       <input type="text" name="address" placeholder="enter your address" formControlName="address">
+        <input type="text" name="contactno" placeholder="enter your contactno" formControlName="contactNo">
+         <input type="text" name="password" placeholder="enter your password" formControlName="password">
 
-         <button>Submit</button>
+<button (click)="focusName()">Focus Name Input</button>
+         <button (click)="onUserSubmit()">Submit</button>
 
   </div>
 
