@@ -1,0 +1,11 @@
+NgRx follows the Redux pattern. Here’s the flow: - it is a state management technique
+
+State – The single store (like a big JSON object).
+Actions – Plain objects describing “what happened”.
+Reducers – Pure functions that update state based on actions.
+Selectors – Functions to fetch slices of state.
+Effects – Handle side effects (API calls, async tasks).
+Store – Centralized state container. -- this is the place where the state is managed 
+
+npm install @ngrx/store --save --- command to enter the score
+npm install @ngrx/store@^19 @ngrx/effects@^19 @ngrx/store-devtools@^19 @ngrx/entity@^19 --save

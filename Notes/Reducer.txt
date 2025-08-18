@@ -1,0 +1,65 @@
+
+1st create task.model.ts
+2nd create task.reducer.ts
+3rd create actions.ts
+4th create task.selector.ts
+5th after creating the selector then go the component where we have the registration form or whatever application we have
+6th and imp add the providers for reducer in the app.config.ts or else we might get the null injector error
+
+
+export function taskReducer(state = initialState, action: any): AppState 
+
+taskReducer → This is the reducer function that tells NgRx how the state changes in response to actions.
+
+Parameters:
+
+state = initialState: If no state is provided (e.g., on first app load), the reducer will use the default initialState.
+
+action: any: The action object dispatched (e.g., { type: '[Task] Add', task: {...} }).
+
+: AppState → Declares the return type: the function must return the application’s state (AppState).
+
+
+switch (action.type) 
+
+This inspects the type of the action.
+Every action has a type string (e.g., '[Task] Add', '[Task] Update').
+Depending on the type, the reducer decides how the state should change.
+
+
+case addTask.type:
+
+If the action is of type addTask, run this block.
+addTask.type is the string representation of the addTask action you defined in task.actions.ts (like "[Task] Add").
+
+
+return { ...state, tasks: [...state.tasks, action.task] };
+
+This returns a new state object (reducers must be pure functions — never mutate the old state).
+...state → Copy all existing state properties.
+tasks: [...state.tasks, action.task] → Creates a new array of tasks with all the old tasks, plus the new action.task appended.
+This ensures immutability (no direct modification of state.tasks).
+
+case updateTask.type:
+Runs when the dispatched action is updateTask.
+
+
+Summary of What Happens -- IMPORTANT
+
+A component dispatches an action (addTask, updateTask, deleteTask).
+NgRx sends that action + the current state into this reducer.
+The reducer checks the action.type:
+If it’s an add → it appends a new task.
+If it’s an update → it replaces the old task with the new one.
+If it’s a delete → it removes the task by ID.
+Reducer returns a new state object (immutably).
+NgRx updates the Store with this new state.
+Components subscribed to the store (store.select(...)) get the updated state.
+
+
+So in short:
+
+Reducer = pure function.
+Input = (currentState, action).
+Output = new state.
+No side effects (API calls, etc.) → those belong in Effects.

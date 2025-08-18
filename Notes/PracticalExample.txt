@@ -1,0 +1,120 @@
+working of NGRX , what happens with using NGRX and what happens without using it
+
+
+Imagine a Family House (Your Angular App)
+
+Without NgRx (Normal Angular)
+
+Each family member (component) writes down their own grocery list (tasks) on their personal notepad.
+You say: "Add milk to the list."
+You add it on your notepad ✅ … but your sister’s notepad doesn’t know you added milk ❌.
+Now, when mom goes shopping, she looks at her notepad → no milk.
+Result: confusion, duplicates, missing items.
+You constantly have to tell each person "Hey, update your list too!"
+
+
+With NgRx (State Management)
+
+Instead of everyone having their own notepad, there is ONE big whiteboard in the kitchen (Store).
+Every family member reads and writes only on this central whiteboard.
+You say: "Add milk."
+You don’t write it yourself. You shout the instruction: "Add milk!" (this is the Action).
+The family rulebook (Reducer) says:
+“If someone shouts Add milk, take the whiteboard, make a new copy, and add ‘milk’ to it.”
+The whiteboard is updated (Store).
+Now everyone in the family sees milk instantly because they all look at the same whiteboard (Selector → Component UI).
+No one keeps private notes. No confusion, no duplicates.
+
+
+What Happens in Your Task Example
+
+You clicked “Add New Task”.
+That shout is an Action: “Hey Reducer, add this task.”
+Reducer follows the rules → creates a new state (with your new task).
+The Store (whiteboard) now has this updated list.
+Your component (family member) is already watching the store, so it sees the update automatically.
+UI refreshes → new task shows up.
+
+
+Without NgRx in Your Task Example
+
+You’d just have tasks: [] inside one component.
+When you add a task, you push it into that array.
+Problem? If another component also needs tasks (like a dashboard showing “Number of tasks”), it won’t know unless you write extra code to share that array.
+As your app grows, you’ll be running around trying to sync tasks between many places → just like chasing family members to update their notes. 😅
+
+
+So, in short:
+
+Without NgRx = each person keeps their own copy, leading to chaos.
+With NgRx = one central whiteboard, rules for updating, and everyone always sees the latest truth.
+
+-----------------------------------------------------------------------------------
+
+below is the very detailed explanation with respect to the state management application
+
+The Setup
+
+Whiteboard = Store (AppState)
+Family rules = Reducer , task.reducer.ts
+Shouts = Actions , task.actions.ts
+Family members = Components , statemangement component.ts
+Everyone reading the whiteboard = Selectors , task.selector.ts
+
+--------------------
+
+Add Task
+
+👉 You click “Add New Task”.
+You (component) don’t add it yourself. Instead, you shout:
+“AddTask: {title: 'Buy milk', description: '2 liters'}”
+Reducer hears this shout.
+Rulebook says: “If action is AddTask, copy the current whiteboard list, add the new task, return the new list.”
+Whiteboard is updated.
+Everyone (all components) sees milk appear instantly.
+
+
+Add task Without NgRx: - practical difficulty ,we must use @input and @output to pass the values to other components or behaviour subject
+
+You push {title: 'Buy milk'} into your local array.
+Other components won’t know unless you write code to pass that array around.
+You’re basically running to each family member: “Hey, I added milk, please write it down too.”
+
+
+---------------------------------------------
+
+Update Task
+
+👉 You edit a task: change “Buy milk” → “Buy almond milk”.
+You shout:
+“UpdateTask: {id: 1, title: 'Buy almond milk'}”
+Reducer rule: “Find the task with id 1, update it, and return a new copy of the list.”
+Whiteboard updates.
+Everyone sees “Buy almond milk”..
+
+✅ Without NgRx:
+You’d manually update the object in your component.
+Other components may still show “Buy milk” unless you manually notify them.
+That’s like you fixing your notepad, but your sister still has the old version.
+
+---------------------------------------------------
+
+Delete Task
+
+👉 You delete a task: Remove “Buy almond milk”.
+You shout:
+“DeleteTask: {id: 1}”
+Reducer rule: “Filter out task with id 1 from the whiteboard list.”
+Whiteboard updates.
+Everyone sees that the task disappeared.
+
+✅ Without NgRx:
+
+You’d remove it from your local array.
+But unless you notify everyone else, other parts of the app may still think the task exists.
+That’s like you erasing from your notebook, but your brother still thinks he has to buy milk.
+
+
+
+
+
