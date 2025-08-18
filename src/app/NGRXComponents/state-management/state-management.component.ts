@@ -17,6 +17,7 @@ import { selectTasks } from '../task.selector';
 export class StateManagementComponent {
 
   //importing the interface from the task model
+  //all the ngrx compoennts are called in the app.html
 
  tasks$: Observable<Task[]>;  // 👈 use observable instead of plain array
 

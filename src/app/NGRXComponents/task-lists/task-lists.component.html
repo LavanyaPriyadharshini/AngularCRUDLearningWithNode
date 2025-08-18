@@ -1,0 +1,10 @@
+<p>task-lists works!</p>
+
+
+ <h2>Task List</h2>
+    <div *ngFor="let task of tasks$ | async" class="task">
+      <h3>{{ task.title }}</h3>
+      <p>{{ task.description }}</p>
+      <button (click)="updateTask(task)">Update</button>
+      <button (click)="deleteTask(task.id)">Delete</button>
+    </div>
