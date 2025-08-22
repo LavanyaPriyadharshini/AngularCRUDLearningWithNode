@@ -1,0 +1,10 @@
+
+
+<app-child [message]="pmessage"></app-child>
+<!-- now in child component , use the @input to get this value from this parent -->
+
+<button (click)="update()">Update Message</button>
+
+<!-- Reciving the array of numbers from the child -->
+ <app-child (numbersEvent)="receiveNumbers($event)"></app-child>
+ <p>Numbers from Child: {{ childNumbers }}</p>

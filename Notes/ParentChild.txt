@@ -1,0 +1,27 @@
+
+
+parent to child - use @Input decorator in the parent component
+
+
+child to parent we use @Output
+@Output() always emits events, not properties.
+
+The parent listens with (eventName) just like DOM events.
+You can emit any type: string, number, object, array, or even a custom class.
+Best practice → give events meaningful names like userSelected, cartUpdated, not just dataEvent.
+
+
+HostListeners
+
+@HostListener is a decorator in Angular that allows you to listen to DOM events on the host element (the element where the directive/component is applied).
+why it is used ? instead of using many event bindings we use HostListeners to bind to the various events like mouse events and keyboard events
+refer the general-concepts components
+It lets you handle events like click, mouseenter, keydown, window resize, etc. without directly writing (event) bindings in the template.
+
+
+Why use @HostListener?
+
+✅ To keep your templates clean (no need to clutter with too many (event) bindings).
+✅ To listen to global events like window:resize, document:click, scroll, etc.
+✅ To encapsulate event logic inside the component/directive, improving reusability.
+

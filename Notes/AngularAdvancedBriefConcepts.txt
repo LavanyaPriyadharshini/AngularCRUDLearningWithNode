@@ -1,0 +1,338 @@
+# Advanced Angular Interview Questions for 2-Year Experience
+
+## 1. Component Architecture & Lifecycle
+
+### Q1: Explain the difference between ngOnInit and constructor. When would you use each?
+
+**Answer:**
+- **Constructor**: Used for dependency injection and basic initialization. Runs before Angular initializes the component.
+- **ngOnInit**: Lifecycle hook that runs after Angular initializes component properties. Best for initialization logic that depends on input properties.
+
+```typescript
+export class MyComponent implements OnInit {
+  @Input() data: any;
+  
+  constructor(private service: DataService) {
+    // Only dependency injection and basic setup
+    console.log(this.data); // undefined - inputs not set yet
+  }
+  
+  ngOnInit() {
+    // Initialization logic after inputs are set
+    console.log(this.data); // Available
+    this.loadData();
+  }
+}
+```
+
+### Q2: What is the difference between OnPush and Default change detection strategies? When would you use OnPush?
+
+**Answer:**
+- **Default**: Angular checks all components in the tree for changes on every change detection cycle
+- **OnPush**: Component only checks for changes when:
+  - Input reference changes
+  - Event occurs within the component
+  - Manual trigger using ChangeDetectorRef
+
+Use OnPush for performance optimization in large applications.
+
+```typescript
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class OptimizedComponent {
+  constructor(private cdr: ChangeDetectorRef) {}
+  
+  manualUpdate() {
+    this.cdr.markForCheck(); // Trigger change detection
+  }
+}
+```
+
+## 2. Reactive Programming & RxJS
+
+### Q3: Explain the difference between map, mergeMap, switchMap, and concatMap operators.
+
+**Answer:**
+- **map**: Transforms each value
+- **mergeMap**: Maps to observable and merges all inner observables (can run concurrently)
+- **switchMap**: Maps to observable and switches to latest inner observable (cancels previous)
+- **concatMap**: Maps to observable and concatenates inner observables in order
+
+```typescript
+// switchMap - Cancel previous requests
+searchTerm$.pipe(
+  switchMap(term => this.searchService.search(term))
+).subscribe();
+
+// mergeMap - Allow concurrent requests
+files$.pipe(
+  mergeMap(file => this.uploadService.upload(file))
+).subscribe();
+
+// concatMap - Maintain order
+requests$.pipe(
+  concatMap(req => this.apiService.process(req))
+).subscribe();
+```
+
+### Q4: How do you handle memory leaks in Angular? Provide examples.
+
+**Answer:**
+Common causes and solutions:
+
+```typescript
+export class ComponentWithSubscriptions implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+  
+  ngOnInit() {
+    // Method 1: takeUntil pattern
+    this.dataService.getData().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe();
+    
+    // Method 2: Store subscriptions
+    const subscription = this.service.getData().subscribe();
+    // Store in array and unsubscribe in ngOnDestroy
+  }
+  
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+}
+
+// Using async pipe (automatically unsubscribes)
+@Component({
+  template: `<div>{{ data$ | async }}</div>`
+})
+export class AutoUnsubscribeComponent {
+  data$ = this.service.getData();
+}
+```
+
+## 3. Advanced Forms
+
+### Q5: Explain the difference between Template-driven and Reactive forms. When would you use each?
+
+**Answer:**
+- **Template-driven**: Uses directives in template, good for simple forms
+- **Reactive**: Uses FormBuilder/FormControl in component, better for complex forms with validation
+
+```typescript
+// Reactive Form
+export class ReactiveFormComponent {
+  form = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]]
+  });
+  
+  constructor(private fb: FormBuilder) {}
+  
+  onSubmit() {
+    if (this.form.valid) {
+      console.log(this.form.value);
+    }
+  }
+}
+
+// Custom Validator
+function customValidator(control: AbstractControl): ValidationErrors | null {
+  const value = control.value;
+  if (!value) return null;
+  return value.includes('test') ? { containsTest: true } : null;
+}
+```
+
+### Q6: How do you implement custom form validators and async validators?
+
+**Answer:**
+```typescript
+// Sync Validator
+export function emailDomainValidator(domain: string): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) return null;
+    const email = control.value;
+    return email.endsWith(domain) ? null : { emailDomain: true };
+  };
+}
+
+// Async Validator
+export class EmailAsyncValidator implements AsyncValidator {
+  constructor(private userService: UserService) {}
+  
+  validate(control: AbstractControl): Promise<ValidationErrors | null> {
+    if (!control.value) return Promise.resolve(null);
+    
+    return this.userService.checkEmailExists(control.value).pipe(
+      map(exists => exists ? { emailExists: true } : null),
+      catchError(() => of(null))
+    ).toPromise();
+  }
+}
+
+// Usage
+this.form = this.fb.group({
+  email: ['', 
+    [Validators.required, emailDomainValidator('@company.com')],
+    [this.emailAsyncValidator.validate.bind(this.emailAsyncValidator)]
+  ]
+});
+```
+
+## 4. State Management & Services
+
+### Q7: Explain different ways to share data between components.
+
+**Answer:**
+1. **Parent to Child**: @Input
+2. **Child to Parent**: @Output / EventEmitter
+3. **Siblings**: Shared Service
+4. **Unrelated**: Service with BehaviorSubject/State Management
+
+```typescript
+// Shared Service Pattern
+@Injectable({ providedIn: 'root' })
+export class DataSharingService {
+  private dataSubject = new BehaviorSubject<any>(null);
+  data$ = this.dataSubject.asObservable();
+  
+  updateData(data: any) {
+    this.dataSubject.next(data);
+  }
+  
+  getCurrentData() {
+    return this.dataSubject.value;
+  }
+}
+
+// ViewChild/ViewChildren for direct access
+@ViewChild(ChildComponent, { static: false }) childComponent!: ChildComponent;
+@ViewChildren(ItemComponent) itemComponents!: QueryList<ItemComponent>;
+```
+
+### Q8: What is dependency injection and how does Angular's DI system work?
+
+**Answer:**
+DI is a design pattern where dependencies are provided rather than created by the class.
+
+```typescript
+// Provider configurations
+@Injectable({
+  providedIn: 'root' // Singleton
+})
+export class GlobalService {}
+
+// Module level
+@NgModule({
+  providers: [
+    { provide: ApiService, useClass: MockApiService }, // useClass
+    { provide: API_URL, useValue: 'https://api.example.com' }, // useValue
+    { provide: Logger, useFactory: loggerFactory, deps: [Environment] }, // useFactory
+    { provide: DataService, useExisting: CachedDataService } // useExisting
+  ]
+})
+
+// Component level (new instance per component)
+@Component({
+  providers: [ComponentSpecificService]
+})
+
+// Injection tokens
+export const API_CONFIG = new InjectionToken<ApiConfig>('api.config');
+```
+
+## 5. Performance Optimization
+
+### Q9: What are the different ways to optimize Angular application performance?
+
+**Answer:**
+```typescript
+// 1. OnPush Change Detection
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+
+// 2. Lazy Loading
+const routes: Routes = [
+  {
+    path: 'feature',
+    loadChildren: () => import('./feature/feature.module').then(m => m.FeatureModule)
+  }
+];
+
+// 3. TrackBy Functions
+@Component({
+  template: `
+    <div *ngFor="let item of items; trackBy: trackByFn">
+      {{ item.name }}
+    </div>
+  `
+})
+export class ListComponent {
+  trackByFn(index: number, item: any): any {
+    return item.id; // Use unique identifier
+  }
+}
+
+// 4. Async Pipe
+@Component({
+  template: `<div>{{ data$ | async }}</div>`
+})
+
+// 5. Preloading Strategies
+@NgModule({
+  imports: [RouterModule.forRoot(routes, {
+    preloadingStrategy: PreloadAllModules
+  })]
+})
+```
+
+### Q10: Explain lazy loading and how to implement it.
+
+**Answer:**
+```typescript
+// App routing with lazy loading
+const routes: Routes = [
+  {
+    path: 'users',
+    loadChildren: () => import('./users/users.module').then(m => m.UsersModule)
+  },
+  {
+    path: 'products',
+    loadChildren: () => import('./products/products.module').then(m => m.ProductsModule)
+  }
+];
+
+// Feature module
+@NgModule({
+  imports: [
+    CommonModule,
+    RouterModule.forChild([
+      { path: '', component: UsersListComponent },
+      { path: ':id', component: UserDetailComponent }
+    ])
+  ],
+  declarations: [UsersListComponent, UserDetailComponent]
+})
+export class UsersModule {}
+
+// Preloading strategy
+export class CustomPreloadingStrategy implements PreloadingStrategy {
+  preload(route: Route, load: () => Observable<any>): Observable<any> {
+    if (route.data && route.data['preload']) {
+      return load();
+    }
+    return of(null);
+  }
+}
+```
+
+## 6. Advanced Directives & Pipes
+
+### Q11: How do you create custom structural and attribute directives?
+
+**Answer:**
+```typescript
+// Structural Directive
+@Directive

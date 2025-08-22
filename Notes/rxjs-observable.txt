@@ -1,0 +1,96 @@
+RxJS (Reactive Extensions for JavaScript) is a library for working with asynchronous data streams.
+
+A stream is a sequence of ongoing events ordered in time.
+RxJS provides:
+Observable → represents a stream (producer of data).
+Observer → consumes data (subscriber).
+Operators → functions to transform/filter data.
+Subscription → execution of an observable.
+Subject → both observable and observer (for multicasting).
+
+think of it like a Netflix subscription:
+
+An Observable is like a blueprint for a data stream — it doesn’t do anything until you subscribe.
+Netflix (Observable) → produces movies.
+You (Observer) → watch them when you subscribe.
+You can unsubscribe anytime to stop receiving.
+
+The RXJS operators are
+1. switchMap() -Search box autocomplete uses switchMap (cancel old requests).
+2.MergeMap()
+3. concatMap() - Runs inner observables one by one, in order.
+                Waits for the previous one to complete before starting the next. 
+                Best when order matters or you want to avoid flooding the server.
+4. exhaustMap() -Ignores new inner observables while one is already running.
+                 Best when you want to ignore extra triggers until the first one finishes.
+                 If user clicks the login button multiple times → only the first click is processed, others are ignored until done.
+
+                 
+
+Operator      Behavior 🚀	                      Best Use Case
+switchMap	Cancels old, keeps latest	           Search/autocomplete
+mergeMap	Runs all in parallel	               Parallel API calls
+concatMap	Runs one after another	               Ordered tasks (save steps)
+exhaustMap	Ignores new until current finishes	   Prevent duplicate submissions
+
+some more advance concepts of the angular
+1 fork join - take() and first()
+2. combineLatest()
+
+
+take(n)- it takes the first n items when an observable emits ,then after it automatically completes
+eg : interval(1000).pipe(
+  take(3)   // take first 3 values only
+).subscribe(val => console.log(val)); 
+output
+0
+1
+2
+
+
+first() Operator - it takes only the first, first() allows you to take only the first emitted value that satisfies a condition (or just the very first one if no condition).
+                  After emitting that one value, it completes.               
+eg : interval(1000).pipe(
+  first()
+).subscribe(val => console.log(val));
+output
+1
+(Stops immediately after first emission.)
+
+eg : First value greater than 5 , here it takes the first value above 5 which is 6 here
+of(2, 4, 6, 8).pipe(
+  first(val => val > 5)
+).subscribe(val => console.log(val));
+output
+6
+
+take() is used for Preventing infinite streams
+eg: // Without take → runs forever
+interval(1000).subscribe(val => console.log(val));
+
+// With take(5) → stops after 5 values
+interval(1000).pipe(take(5)).subscribe(val => console.log(val));
+
+
+first() --- takes the first change in the form and then auto unsubscribes
+this.form.valueChanges.pipe(
+  first()
+).subscribe(value => console.log("First change:", value));
+
+
+With forkJoin and APIs
+If you mistakenly use interval or fromEvent (which never complete), forkJoin won’t emit.
+Adding take(1) ensures completion.
+
+forkJoin([
+  this.http.get('/api/user'),
+  interval(1000).pipe(take(1))  // ensure completion
+]).subscribe(result => console.log(result));
+
+important  - takeUntil and destroy are used to avoid memory leaks in the angular component
+takeUntil(notifier$) --- keeps emitting values from a source observable until another observable (notifier$) emits a value.
+
+After the notifier emits, the subscription automatically completes.
+In Angular, we often use takeUntil with a destroy$ subject inside a component to auto-unsubscribe when the component is destroyed. 
+takeUntil(destroy$) ensures all subscriptions automatically unsubscribe.
+Prevents memory leaks (very important in long-lived Angular apps).

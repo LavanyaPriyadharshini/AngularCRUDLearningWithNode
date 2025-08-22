@@ -1,0 +1,93 @@
+<p>general-concepts works!</p>
+
+
+<!-- 1. DATA BINDING CONCEPT -->
+
+ <!-- 1. String Interpolation - It’s read-only (one-way) → template shows data, but cannot change it. -->
+
+ <h2>the username is {{userName}}</h2>
+
+ <!-- 2. Property Binding (One-Way Data Binding) -- Used to bind component values to DOM element properties or Angular directives. 
+  [src] and [alt] bind values from component.
+  Unlike interpolation, property binding is better when binding non-string values (e.g., booleans, objects).-->
+ <img [src]="imageUrl" [alt]="altText">
+
+
+ <!-- 3. Event Binding - Button click events or onchange events
+  It’s one-way from template → component. -->
+
+ <div>
+      <h2>Click Event Example</h2>
+      <button (click)="onClick()">Click Me!</button>
+      <p>Button clicked: {{ clickCount }} times</p>
+
+       <!-- Passing event object -->
+      <button (click)="onClickWithEvent($event)">Click with Event</button>
+      <p>{{ eventMessage }}</p>
+
+        <!-- Passing event object ,so to diplay the message when the button is clicked -->
+      <button (click)="onAfterClick($event)">Click with Event</button>
+      <p>{{ disMessageAfterClick }}</p>
+ </div>
+ 
+
+
+
+ <!-- Two-Way Data Binding ([(ngModel)]), if for Reactive Forms, we can use FormControlName
+  ngModel - it is used in Template Driven Form, where the most of the logic resides inside the Template
+  FormControlName- It is a Model Driven Form, where the most logic resides in the Typescript file of the component -->
+
+  <!-- NgModel -Keeps component and template in sync (changes in one update the other).
+   [(ngModel)] is a banana in a box syntax → combines property binding [ ] + event binding ( ).
+   Requires FormsModule in AppModule. -->
+
+   <input [(ngModel)]="userName" placeholder="Enter your name">
+   <p>Hello, {{userName}}</p>
+
+
+   <!-- Attribute binding
+    [attr.name] → binds to HTML attribute (always string).
+    [property] → binds to DOM property (can be string, number, boolean, etc.). -->
+
+  <!-- Property binding (checked is a boolean) -->
+<input type="checkbox" [checked]="isChecked">
+
+<!-- Attribute binding (string only, useful for custom values like aria, role) -->
+<input [attr.aria-label]="label">
+
+
+<!-- Class Binding -->
+ <p [class.highlight]="isActive">Hello Angular</p>
+
+ <!-- Let’s make isActive toggle when you click a button. 
+  in css i have given a css .highlight, so when you click the btn below the color will get highlighted-->
+  <p [class.highlight]="isActive">Toggle when the button is clicked</p>
+  <button (click)="toggleActive()">
+  Toggle Highlight
+</button>
+
+<!-- the above is similar to -->
+<p [ngClass]="{ 'highlight': isActive }">Hello common module</p>
+
+
+<!-- Style Binding ,call the isError in typescript and the color changes as green in the page for this text if the isError is false, if it is true it comes as red-->
+ <p [style.color]="isError? 'red': 'green'">Style binding message</p>
+
+ <!-- toggling of the style binding -->
+  <p [style.color]="isError1? 'red': 'green'">Toggling of the style binding</p>
+  <button (click)="toggleStyle()">Toggle Style</button>
+
+
+  <br>
+  <br>
+
+  <!-- Host Listeners -->
+   <h2>Host Listeners example</h2>
+  <!-- <button (mouseenter)="onMouseEnter()" 
+        (mouseleave)="onMouseLeave()" 
+        (click)="onClickHostList()">
+  Hover or Click Me
+</button> -->
+
+<button>Click or hover me</button>
+   
